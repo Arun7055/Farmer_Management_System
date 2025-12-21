@@ -8,6 +8,7 @@ export const runMigrations = async () => {
         await sql`
             CREATE TABLE IF NOT EXISTS farmers (
                 id SERIAL PRIMARY KEY,
+                clerk_user_id TEXT UNIQUE NOT NULL,
                 name VARCHAR(100) NOT NULL,
                 phone VARCHAR(20),
                 address TEXT,
