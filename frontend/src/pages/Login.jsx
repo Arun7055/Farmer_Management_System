@@ -5,16 +5,16 @@ export default function Login() {
   return (
     <Box
       display="flex"
+      flexDirection="column"
       justifyContent="center"
       alignItems="center"
       height="100vh"
     >
-      <Box>
-        <Typography variant="h4" align="center" gutterBottom>
-          Farmer System Login
-        </Typography>
-        <SignIn redirectUrl="/" />
-      </Box>
+      <Typography variant="h4" gutterBottom>
+        Farmer System Login
+      </Typography>
+
+      <SignIn routing="path" path="/" redirectUrl="/home" />
     </Box>
   );
 }

@@ -1,5 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import {
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn,
+  RedirectToUserProfile
+} from "@clerk/clerk-react";
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -11,10 +16,24 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-
+        {/* Landing Page */}
         <Route
           path="/"
+          element={
+            <>
+              <SignedOut>
+                <Login />
+              </SignedOut>
+              <SignedIn>
+                <Home />
+              </SignedIn>
+            </>
+          }
+        />
+
+        {/* Home */}
+        <Route
+          path="/home"
           element={
             <SignedIn>
               <Home />
@@ -22,6 +41,7 @@ function App() {
           }
         />
 
+        {/* Groups */}
         <Route
           path="/groups"
           element={
@@ -31,6 +51,7 @@ function App() {
           }
         />
 
+        {/* Create Group */}
         <Route
           path="/groups/create"
           element={
@@ -40,6 +61,7 @@ function App() {
           }
         />
 
+        {/* Crops */}
         <Route
           path="/crops"
           element={
@@ -49,11 +71,12 @@ function App() {
           }
         />
 
+        {/* Catch-all */}
         <Route
           path="*"
           element={
             <SignedOut>
-              <RedirectToSignIn />
+              <RedirectToSignIn routing="path" path="/" />
             </SignedOut>
           }
         />

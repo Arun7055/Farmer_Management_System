@@ -20,9 +20,11 @@ export default function Navbar() {
         <Button color="inherit" onClick={() => navigate("/groups")}>
           Groups
         </Button>
+
         <Button color="inherit" onClick={() => navigate("/crops")}>
           Crops
         </Button>
+
         <Button color="inherit" onClick={() => signOut()}>
           Logout
         </Button>
