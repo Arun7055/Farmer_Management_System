@@ -13,7 +13,11 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Button
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -24,6 +28,28 @@ export default function Lands() {
   const [lands, setLands] = useState([]);
   const [open, setOpen] = useState(false);
 
+  /* ================= CURRENT FARMER ================= */
+  const storedFarmerId = localStorage.getItem("farmer_id");
+
+const currentFarmerId =
+  storedFarmerId && !isNaN(parseInt(storedFarmerId, 10))
+    ? parseInt(storedFarmerId, 10)
+    : null;
+
+  // DEBUG (comment later)
+  console.log(
+    "[CURRENT FARMER]",
+    currentFarmerId,
+    "type:",
+    typeof currentFarmerId
+  );
+
+  /* ================= FILTER STATE ================= */
+  const [ownerFilter, setOwnerFilter] = useState("all"); // all | mine | others
+  const [soilFilter, setSoilFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+
+  /* ================= FORM STATE ================= */
   const [form, setForm] = useState({
     farmer_id: "",
     group_id: "",
@@ -36,6 +62,18 @@ export default function Lands() {
   const fetchLands = async () => {
     try {
       const res = await getAllLands();
+
+      // DEBUG
+      console.log("[LANDS RAW RESPONSE]", res.data);
+      res.data.forEach((land) => {
+        console.log(
+          `[LAND ${land.id}] farmer_id =`,
+          land.farmer_id,
+          "type:",
+          typeof land.farmer_id
+        );
+      });
+
       setLands(res.data);
     } catch (err) {
       console.error("Error fetching lands", err);
@@ -48,18 +86,17 @@ export default function Lands() {
 
   /* ================= CREATE LAND ================= */
   const handleCreate = async () => {
-    // required fields check
     if (!form.farmer_id || !form.area || !form.location) {
-      alert("Farmer ID, Area, and Location are mandatory");
+      alert("Farmer ID, Area and Location are mandatory");
       return;
     }
 
     const payload = {
       farmer_id: Number(form.farmer_id),
+      group_id: form.group_id ? Number(form.group_id) : null,
       area: Number(form.area),
       location: form.location,
-      soil_type: form.soil_type || null,
-      group_id: form.group_id ? Number(form.group_id) : null
+      soil_type: form.soil_type || null
     };
 
     try {
@@ -78,6 +115,35 @@ export default function Lands() {
     }
   };
 
+  /* ================= FILTERED DATA ================= */
+  const filteredLands = lands.filter((land) => {
+    const landFarmerId = Number(land.farmer_id);
+    const isMine = landFarmerId === currentFarmerId;
+
+    // DEBUG (comment later)
+    console.log(
+      `[FILTER CHECK] Land ${land.id}`,
+      "| land.farmer_id:", landFarmerId,
+      "| currentFarmerId:", currentFarmerId,
+      "| isMine:", isMine
+    );
+
+    if (ownerFilter === "mine" && !isMine) return false;
+    if (ownerFilter === "others" && isMine) return false;
+    if (
+      soilFilter &&
+      land.soil_type?.toLowerCase() !== soilFilter.toLowerCase()
+    )
+      return false;
+    if (
+      locationFilter &&
+      !land.location.toLowerCase().includes(locationFilter.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
+
   /* ================= UI ================= */
   return (
     <>
@@ -87,6 +153,34 @@ export default function Lands() {
         <Typography variant="h4" gutterBottom>
           Lands
         </Typography>
+
+        {/* ---------- FILTERS ---------- */}
+        <Box display="flex" gap={2} mb={3}>
+          <FormControl sx={{ minWidth: 160 }}>
+            <InputLabel>Owner</InputLabel>
+            <Select
+              value={ownerFilter}
+              label="Owner"
+              onChange={(e) => setOwnerFilter(e.target.value)}
+            >
+              <MenuItem value="all">All Lands</MenuItem>
+              <MenuItem value="mine">My Lands</MenuItem>
+              <MenuItem value="others">Others' Lands</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Soil Type"
+            value={soilFilter}
+            onChange={(e) => setSoilFilter(e.target.value)}
+          />
+
+          <TextField
+            label="Location"
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          />
+        </Box>
 
         {/* ---------- LAND TABLE ---------- */}
         <Table>
@@ -103,14 +197,14 @@ export default function Lands() {
           </TableHead>
 
           <TableBody>
-            {lands.map((land) => (
+            {filteredLands.map((land) => (
               <TableRow key={land.id}>
                 <TableCell>{land.id}</TableCell>
                 <TableCell>{land.farmer_id}</TableCell>
-                <TableCell>{land.group_id ?? "-"}</TableCell>
+                <TableCell>{land.group_id ?? "—"}</TableCell>
                 <TableCell>{land.area}</TableCell>
                 <TableCell>{land.location}</TableCell>
-                <TableCell>{land.soil_type ?? "-"}</TableCell>
+                <TableCell>{land.soil_type ?? "—"}</TableCell>
                 <TableCell>
                   {new Date(land.created_at).toLocaleString()}
                 </TableCell>
@@ -162,7 +256,9 @@ export default function Lands() {
             label="Area *"
             type="number"
             value={form.area}
-            onChange={(e) => setForm({ ...form, area: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, area: e.target.value })
+            }
           />
 
           <TextField

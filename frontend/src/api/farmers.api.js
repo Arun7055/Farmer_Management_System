@@ -29,3 +29,9 @@ export const deleteFarmer = async (id) => {
   const res = await api.delete(`/farmers/${id}`);
   return res.data;
 };
+
+/* GET farmers by Clerk id */
+export const getFarmerByClerkId = async (clerkId) => {
+    const res = await api.get(`/farmers/clerk/${clerkId}`);
+    return res.data;
+  };

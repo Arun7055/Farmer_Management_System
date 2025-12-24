@@ -1,88 +1,78 @@
-import Navbar from "../components/navbar";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+
 import {
   Box,
   Typography,
   Grid,
   Card,
-  CardContent,
-  CircularProgress
+  CardContent
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
-import axios from "axios";
 
-const API_BASE = "http://localhost:3000/api"; // change if needed
+import Navbar from "../components/navbar";
+import api from "../api/axios";
 
 export default function Home() {
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
 
-  const [loading, setLoading] = useState(true);
-  const [farmer, setFarmer] = useState(null);
-
-  const cards = [
-    { title: "My Groups", path: "/groups" },
-    { title: "Crops", path: "/crops" },
-    { title: "My Lands", path: "/lands" },
-    { title: "Equipment", path: "/equipment" },
-    { title: "Create Group", path: "/groups/create" }
-  ];
-
+  /* ================= CLERK → FARMER SYNC ================= */
   useEffect(() => {
     if (!isLoaded || !user) return;
 
+    const clerkId = user.id;
+
+    console.log("🔑 Clerk User ID:", clerkId);
+
     const syncFarmer = async () => {
       try {
-        // 1️⃣ Try fetching farmer by Clerk ID
-        const res = await axios.get(
-          `${API_BASE}/farmers/by-clerk/${user.id}`
-        );
-        setFarmer(res.data.data);
-        setLoading(false);
-      } catch (err) {
-        // 2️⃣ If not found → create farmer
-        if (err.response && err.response.status === 404) {
-          try {
-            const createRes = await axios.post(
-              `${API_BASE}/farmers`,
-              {
-                clerk_user_id: user.id,
-                name: user.fullName || user.username || "Farmer",
-                phone: user.phoneNumbers?.[0]?.phoneNumber || null,
-                address: null
-              }
+        const res = await api.get(`/farmers/clerk/${clerkId}`);
+
+        if (res.status === 200 && res.data && res.data.data) {
+          const farmer = res.data.data;
+
+          console.log("🌾 Farmer from DB:", farmer);
+
+          if (farmer?.id) {
+            localStorage.setItem("farmer_id", farmer.id.toString());
+
+            console.log(
+              "✅ Stored farmer_id in localStorage:",
+              localStorage.getItem("farmer_id")
             );
-            setFarmer(createRes.data.data);
-          } catch (createErr) {
-            console.error("Error creating farmer:", createErr);
+          } else {
+            console.warn("⚠️ Farmer ID is missing in the response.");
           }
         } else {
-          console.error("Error fetching farmer:", err);
+          console.warn("⚠️ Unexpected response format or status:", res);
         }
-        setLoading(false);
+      } catch (err) {
+        if (err.response) {
+          console.error(
+            "❌ Failed to sync farmer - API responded with:",
+            err.response.status,
+            err.response.data
+          );
+        } else {
+          console.error("❌ Failed to sync farmer - Network or other error:", err);
+        }
       }
     };
 
     syncFarmer();
   }, [isLoaded, user]);
 
-  /* =========================
-     Loading state
-  ========================= */
-  if (loading) {
-    return (
-      <Box
-        height="100vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  /* ================= DASHBOARD CARDS ================= */
+  const cards = [
+    { title: "My Groups", path: "/groups" },
+    { title: "Lands", path: "/lands" },
+    { title: "Crops", path: "/crops" },
+    { title: "Equipment", path: "/equipment" },
+    { title: "Farmers", path: "/farmers" }
+  ];
 
+  /* ================= UI ================= */
   return (
     <>
       <Navbar />
@@ -91,12 +81,6 @@ export default function Home() {
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
-
-        {farmer && (
-          <Typography variant="subtitle1" gutterBottom>
-            Welcome, <b>{farmer.name}</b>
-          </Typography>
-        )}
 
         <Grid container spacing={3}>
           {cards.map((card) => (

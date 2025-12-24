@@ -9,3 +9,8 @@ export const createEquipment = async (data) => {
   const res = await api.post("/equipment", data);
   return res.data;
 };
+
+export const toggleEquipmentAvailability = async (id) => {
+  const res = await api.put(`/equipment/${id}/toggle-availability`);
+  return res.data;
+};
