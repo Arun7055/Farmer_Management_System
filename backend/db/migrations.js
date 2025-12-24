@@ -67,6 +67,7 @@ export const runMigrations = async () => {
             CREATE TABLE IF NOT EXISTS crops (
                 id SERIAL PRIMARY KEY,
                 land_id INT REFERENCES land(id) ON DELETE CASCADE,
+                farmer_id INT REFERENCES farmers(id) ON DELETE SET NULL,
                 crop_name VARCHAR(100) NOT NULL,
                 growth_stage VARCHAR(50),
                 expected_yield DECIMAL(10,2),

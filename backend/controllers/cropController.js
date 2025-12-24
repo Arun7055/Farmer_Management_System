@@ -1,12 +1,16 @@
 import { sql } from "../config/db.js";
 
 export const createCrop = async (req, res) => {
-    const { land_id, crop_name, growth_stage, expected_yield } = req.body;
+    const { farmer_id, land_id, crop_name, growth_stage, expected_yield } = req.body;
+
+    if (!farmer_id || !land_id || !crop_name) {
+        return res.status(400).json({ error: "farmer_id, land_id, and crop_name are required" });
+    }
 
     try {
         const result = await sql`
-            INSERT INTO crops (land_id, crop_name, growth_stage, expected_yield)
-            VALUES (${land_id}, ${crop_name}, ${growth_stage}, ${expected_yield})
+            INSERT INTO crops (farmer_id, land_id, crop_name, growth_stage, expected_yield)
+            VALUES (${farmer_id}, ${land_id}, ${crop_name}, ${growth_stage}, ${expected_yield})
             RETURNING *;
         `;
         res.json({ success: true, data: result[0] });

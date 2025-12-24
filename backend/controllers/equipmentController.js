@@ -23,3 +23,29 @@ export const getEquipment = async (req, res) => {
         res.status(500).json({ error: "Error fetching equipment" });
     }
 };
+
+export const toggleAvailability = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const equipment = await sql`
+            SELECT availability FROM equipment WHERE id = ${id}
+        `;
+
+        if (equipment.length === 0) {
+            return res.status(404).json({ error: "Equipment not found" });
+        }
+
+        const currentAvailability = equipment[0].availability;
+        const updatedEquipment = await sql`
+            UPDATE equipment
+            SET availability = ${!currentAvailability}
+            WHERE id = ${id}
+            RETURNING *;
+        `;
+
+        res.json({ success: true, data: updatedEquipment[0] });
+    } catch (err) {
+        res.status(500).json({ error: "Error toggling availability" });
+    }
+};
