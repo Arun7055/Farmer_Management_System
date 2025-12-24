@@ -2,6 +2,7 @@ import express from "express";
 import {
     getAllFarmers,
     getFarmer,
+    getFarmerByClerkId,
     createFarmer,
     updateFarmer,
     deleteFarmer
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.get("/", getAllFarmers);
 router.get("/:id", getFarmer);
+router.get("/by-clerk/:clerkId", getFarmerByClerkId);
 router.post("/", createFarmer);
 router.put("/:id", updateFarmer);
 router.delete("/:id", deleteFarmer);

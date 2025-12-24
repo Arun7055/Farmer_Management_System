@@ -3,14 +3,21 @@ import { sql } from "./config/db.js";
 async function run() {
   try {
     await sql`
-  SELECT column_name
-  FROM information_schema.columns
-  WHERE table_name = 'farmers';
-`;
+      TRUNCATE TABLE
+        crops,
+        farmer_groups,
+        farmer_group_members,
+        land,
+        farmers,
+        equipment, 
+        customers,
+        crop_sales
+      RESTART IDENTITY CASCADE;
+    `;
 
-    console.log("✅ Query executed successfully");
+    console.log("✅ All tables emptied successfully");
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("❌ Error truncating tables:", err);
   } finally {
     process.exit(0);
   }

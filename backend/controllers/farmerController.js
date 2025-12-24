@@ -22,21 +22,51 @@ export const getFarmer = async (req, res) => {
     }
 };
 
-export const createFarmer = async (req, res) => {
-    const { name, phone, address } = req.body;
+export const getFarmerByClerkId = async (req, res) => {
+    const { clerkId } = req.params;
 
-    if (!name) {
-        return res.status(400).json({ error: "Name is required" });
+    try {
+        const farmer = await sql`
+            SELECT * FROM farmers WHERE clerk_user_id = ${clerkId}
+        `;
+
+        if (farmer.length === 0) {
+            return res.status(404).json({ error: "Farmer not found" });
+        }
+
+        res.status(200).json({ success: true, data: farmer[0] });
+    } catch (err) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const createFarmer = async (req, res) => {
+    const { clerk_user_id, name, phone, address } = req.body;
+
+    if (!clerk_user_id || !name) {
+        return res.status(400).json({
+            error: "clerk_user_id and name are required"
+        });
     }
 
     try {
         const newFarmer = await sql`
-            INSERT INTO farmers (name, phone, address)
-            VALUES (${name}, ${phone}, ${address})
+            INSERT INTO farmers (clerk_user_id, name, phone, address)
+            VALUES (${clerk_user_id}, ${name}, ${phone}, ${address})
             RETURNING *;
         `;
-        res.status(201).json({ success: true, data: newFarmer });
+
+        res.status(201).json({
+            success: true,
+            data: newFarmer[0]
+        });
     } catch (err) {
+        // handles duplicate clerk_user_id
+        if (err.code === "23505") {
+            return res.status(409).json({
+                error: "Farmer already exists for this Clerk user"
+            });
+        }
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
