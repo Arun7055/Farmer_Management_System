@@ -8,9 +8,12 @@ import {
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import Groups from "./pages/Groups";
-import CreateGroup from "./pages/CreateGroup";
+import GroupDetails from "./pages/Groups";
+import CreateGroups from "./pages/CreateGroup";
 import Crops from "./pages/Crops";
+import Lands from "./pages/Lands";
+import Equipment from "./pages/Equipment";
+import Farmers from "./pages/Farmers";
 
 function App() {
   return (
@@ -41,14 +44,23 @@ function App() {
           }
         />
 
-        {/* Groups */}
         <Route
-          path="/groups"
+          path="/farmers"
           element={
             <SignedIn>
-              <Groups />
+              <Farmers />
             </SignedIn>
           }
+        />
+
+        {/* Groups */}
+        <Route
+          path="/groups/:groupId"
+          element={
+            <SignedIn>
+              <GroupDetails />
+            </SignedIn>
+        }
         />
 
         {/* Create Group */}
@@ -56,7 +68,7 @@ function App() {
           path="/groups/create"
           element={
             <SignedIn>
-              <CreateGroup />
+              <CreateGroups />
             </SignedIn>
           }
         />
@@ -67,6 +79,24 @@ function App() {
           element={
             <SignedIn>
               <Crops />
+            </SignedIn>
+          }
+        />
+
+        <Route
+          path="/lands"
+          element={
+            <SignedIn>
+              <Lands />
+            </SignedIn>
+          }
+        />
+
+        <Route
+          path="/equipment"
+          element={
+            <SignedIn>
+              <Equipment />
             </SignedIn>
           }
         />

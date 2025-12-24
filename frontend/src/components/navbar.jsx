@@ -17,8 +17,20 @@ export default function Navbar() {
           Farmer System
         </Typography>
 
-        <Button color="inherit" onClick={() => navigate("/groups")}>
+        <Button color="inherit" onClick={() => navigate("/groups/create")}>
           Groups
+        </Button>
+
+        <Button color="inherit" onClick={() => navigate("/farmers")}>
+          Farmers
+        </Button>
+
+        <Button color="inherit" onClick={() => navigate("/lands")}>
+          Lands
+        </Button>
+
+        <Button color="inherit" onClick={() => navigate("/equipment")}>
+          Equipment
         </Button>
 
         <Button color="inherit" onClick={() => navigate("/crops")}>
