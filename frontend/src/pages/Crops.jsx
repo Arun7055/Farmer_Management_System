@@ -19,6 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 
 import Navbar from "../components/navbar";
+import StyledTable from "../components/StyledTable";
 import { getAllCrops, createCrop } from "../api/crops.api";
 
 export default function Crops() {
@@ -117,16 +118,38 @@ export default function Crops() {
     <>
       <Navbar />
 
-      <Box p={4}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4">Crops</Typography>
-          <IconButton color="primary" onClick={() => setOpen(true)}>
+      <Box p={4} sx={{ minHeight: "100vh" }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography
+            variant="h4"
+            sx={{
+              background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: 700
+            }}
+          >
+            Crops
+          </Typography>
+          <IconButton
+            color="primary"
+            onClick={() => setOpen(true)}
+            sx={{
+              background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+              transition: "all 0.3s",
+              "&:hover": {
+                transform: "translateY(-2px) scale(1.05)",
+                boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
+              }
+            }}
+          >
             <AddIcon />
           </IconButton>
         </Box>
 
         {/* FILTER BAR */}
-        <Box display="flex" gap={2} mt={2}>
+        <Box display="flex" gap={2} mt={2} mb={3}>
           <TextField
             label="Crop Name"
             value={cropFilter}
@@ -155,7 +178,7 @@ export default function Crops() {
         </Box>
 
         {/* TABLE */}
-        <Table sx={{ mt: 3 }}>
+        <StyledTable sx={{ mt: 3 }}>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -183,7 +206,7 @@ export default function Crops() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </StyledTable>
       </Box>
 
       {/* ADD DIALOG */}

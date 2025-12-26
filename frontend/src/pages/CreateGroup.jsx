@@ -22,6 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar";
+import StyledTable from "../components/StyledTable";
 import { getGroups, createGroup } from "../api/groups.api";
 
 export default function CreateGroups() {
@@ -76,23 +77,41 @@ export default function CreateGroups() {
     <>
       <Navbar />
 
-      <Box p={4}>
-        <Typography variant="h4" gutterBottom>
+      <Box p={4} sx={{ minHeight: "100vh" }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 700,
+            mb: 3
+          }}
+        >
           Farmer Groups
         </Typography>
 
         {/* FILTER DROPDOWN */}
-        <FormControl sx={{ mb: 2, minWidth: 220 }}>
+        <FormControl sx={{ mb: 3, minWidth: 220 }}>
           <Select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(76, 175, 80, 0.3)",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "rgba(76, 175, 80, 0.5)",
+              },
+            }}
           >
             <MenuItem value="all">All Groups</MenuItem>
             <MenuItem value="mine">My Groups</MenuItem>
           </Select>
         </FormControl>
 
-        <Table>
+        <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -106,7 +125,6 @@ export default function CreateGroups() {
             {filteredGroups.map((g) => (
               <TableRow
                 key={g.id}
-                hover
                 sx={{ cursor: "pointer" }}
                 onClick={() => navigate(`/groups/${g.id}`)}
               >
@@ -119,13 +137,24 @@ export default function CreateGroups() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </StyledTable>
       </Box>
 
       {/* CREATE GROUP */}
       <Fab
         color="primary"
-        sx={{ position: "fixed", top: 80, right: 40 }}
+        sx={{
+          position: "fixed",
+          top: 80,
+          right: 40,
+          background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+          boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+          transition: "all 0.3s",
+          "&:hover": {
+            transform: "translateY(-2px) scale(1.05)",
+            boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
+          }
+        }}
         onClick={() => setOpen(true)}
       >
         <AddIcon />

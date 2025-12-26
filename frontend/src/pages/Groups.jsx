@@ -12,6 +12,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import Navbar from "../components/navbar";
+import StyledTable from "../components/StyledTable";
 import {
   getGroupMembers,
   addMemberToGroup
@@ -62,27 +63,52 @@ export default function Groups() {
     <>
       <Navbar />
 
-      <Box p={4}>
+      <Box p={4} sx={{ minHeight: "100vh" }}>
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          mb={2}
+          mb={4}
         >
-          <Typography variant="h4">
-            Group Members (Group ID: {groupId})
+          <Typography
+            variant="h4"
+            sx={{
+              background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: 700
+            }}
+          >
+            Group Members (ID: {groupId})
           </Typography>
 
           <Button
             variant="contained"
             disabled={alreadyJoined}
             onClick={handleJoin}
+            sx={{
+              px: 4,
+              py: 1.5,
+              background: alreadyJoined
+                ? "rgba(76, 175, 80, 0.3)"
+                : "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+              boxShadow: alreadyJoined
+                ? "none"
+                : "0 4px 12px rgba(76, 175, 80, 0.3)",
+              transition: "all 0.3s",
+              "&:hover": alreadyJoined
+                ? {}
+                : {
+                    transform: "translateY(-2px) scale(1.05)",
+                    boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
+                  },
+            }}
           >
             {alreadyJoined ? "Joined" : "Join Group"}
           </Button>
         </Box>
 
-        <Table>
+        <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -110,7 +136,7 @@ export default function Groups() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </StyledTable>
       </Box>
     </>
   );

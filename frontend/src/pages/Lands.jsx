@@ -22,6 +22,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "../components/navbar";
+import StyledTable from "../components/StyledTable";
 import { getAllLands, createLand } from "../api/lands.api";
 
 export default function Lands() {
@@ -150,8 +151,18 @@ const currentFarmerId =
     <>
       <Navbar />
 
-      <Box sx={{ p: 4 }}>
-        <Typography variant="h4" gutterBottom>
+      <Box sx={{ p: 4, minHeight: "100vh" }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontWeight: 700,
+            mb: 3
+          }}
+        >
           Lands
         </Typography>
 
@@ -184,7 +195,7 @@ const currentFarmerId =
         </Box>
 
         {/* ---------- LAND TABLE ---------- */}
-        <Table>
+        <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -212,13 +223,24 @@ const currentFarmerId =
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </StyledTable>
       </Box>
 
       {/* ---------- ADD BUTTON ---------- */}
       <Fab
         color="primary"
-        sx={{ position: "fixed", top: 80, right: 40 }}
+        sx={{
+          position: "fixed",
+          top: 80,
+          right: 40,
+          background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+          boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+          transition: "all 0.3s",
+          "&:hover": {
+            transform: "translateY(-2px) scale(1.05)",
+            boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
+          }
+        }}
         onClick={() => setOpen(true)}
       >
         <AddIcon />

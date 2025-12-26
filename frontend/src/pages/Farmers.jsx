@@ -10,6 +10,7 @@ import {
   } from "@mui/material";
   import { useEffect, useState } from "react";
   import Navbar from "../components/navbar";
+  import StyledTable from "../components/StyledTable";
   import { getAllFarmers } from "../api/farmers.api";
   
   export default function Farmers() {
@@ -46,11 +47,21 @@ import {
       <>
         <Navbar />
   
-        <Box p={4}>
-          <Typography variant="h4" gutterBottom>
+        <Box p={4} sx={{ minHeight: "100vh" }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: 700,
+              mb: 3
+            }}
+          >
             Farmers
           </Typography>
-  
+
           {/* ---------- FILTERS ---------- */}
           <Box display="flex" gap={2} mb={3}>
             <TextField
@@ -73,7 +84,7 @@ import {
           </Box>
   
           {/* ---------- TABLE ---------- */}
-          <Table>
+          <StyledTable>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
@@ -84,7 +95,7 @@ import {
                 <TableCell>Created At</TableCell>
               </TableRow>
             </TableHead>
-  
+
             <TableBody>
               {filteredFarmers.map((f) => (
                 <TableRow key={f.id}>
@@ -98,7 +109,7 @@ import {
                   </TableCell>
                 </TableRow>
               ))}
-  
+
               {filteredFarmers.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
@@ -107,7 +118,7 @@ import {
                 </TableRow>
               )}
             </TableBody>
-          </Table>
+          </StyledTable>
         </Box>
       </>
     );

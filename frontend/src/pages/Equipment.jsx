@@ -19,6 +19,7 @@ import {
   import { useEffect, useState } from "react";
   
   import Navbar from "../components/navbar";
+  import StyledTable from "../components/StyledTable";
   import { getEquipment, createEquipment, toggleEquipmentAvailability } from "../api/equipment.api";
   import api from "../api/axios";
   
@@ -114,17 +115,39 @@ import {
     return (
       <>
         <Navbar />
-  
-        <Box p={4}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h4">Equipment</Typography>
-            <IconButton color="primary" onClick={() => setOpen(true)}>
+
+        <Box p={4} sx={{ minHeight: "100vh" }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Typography
+              variant="h4"
+              sx={{
+                background: "linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700
+              }}
+            >
+              Equipment
+            </Typography>
+            <IconButton
+              color="primary"
+              onClick={() => setOpen(true)}
+              sx={{
+                background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+                boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+                transition: "all 0.3s",
+                "&:hover": {
+                  transform: "translateY(-2px) scale(1.05)",
+                  boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
+                }
+              }}
+            >
               <AddIcon />
             </IconButton>
           </Box>
-  
+
           {/* FILTER BAR */}
-          <Box display="flex" gap={2} mt={2}>
+          <Box display="flex" gap={2} mt={2} mb={3}>
             <TextField
               label="Name"
               value={nameFilter}
@@ -148,7 +171,7 @@ import {
           </Box>
   
           {/* TABLE */}
-          <Table sx={{ mt: 3 }}>
+          <StyledTable sx={{ mt: 3 }}>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
@@ -160,7 +183,7 @@ import {
                 <TableCell>Created</TableCell>
               </TableRow>
             </TableHead>
-  
+
             <TableBody>
               {filteredEquipment.map((eq) => (
                 <TableRow key={eq.id}>
@@ -173,7 +196,21 @@ import {
                       <Button
                         size="small"
                         variant="outlined"
-                        onClick={() => toggleAvailability(eq)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleAvailability(eq);
+                        }}
+                        sx={{
+                          borderColor: eq.availability ? "#f44336" : "#4caf50",
+                          color: eq.availability ? "#f44336" : "#4caf50",
+                          transition: "all 0.3s",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                            boxShadow: eq.availability ? "0 4px 12px rgba(244, 67, 54, 0.3)" : "0 4px 12px rgba(76, 175, 80, 0.3)",
+                            borderColor: eq.availability ? "#f44336" : "#4caf50",
+                            backgroundColor: eq.availability ? "rgba(244, 67, 54, 0.1)" : "rgba(76, 175, 80, 0.1)",
+                          }
+                        }}
                       >
                         {eq.availability ? "Mark Unavailable" : "Mark Available"}
                       </Button>
@@ -190,7 +227,7 @@ import {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </StyledTable>
         </Box>
   
         {/* ADD DIALOG */}
