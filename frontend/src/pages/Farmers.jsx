@@ -88,7 +88,7 @@ export default function Farmers() {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Clerk User ID</TableCell>
+              {/* <TableCell>Clerk User ID</TableCell> */}
               <TableCell>Name</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Address</TableCell>
@@ -100,7 +100,7 @@ export default function Farmers() {
             {filteredFarmers.map((f) => (
               <TableRow key={f.id}>
                 <TableCell>{f.id}</TableCell>
-                <TableCell>{f.clerk_user_id}</TableCell>
+                {/* <TableCell>{f.clerk_user_id}</TableCell> */}
                 <TableCell>{f.name}</TableCell>
                 <TableCell>{f.phone || "—"}</TableCell>
                 <TableCell>{f.address || "—"}</TableCell>
