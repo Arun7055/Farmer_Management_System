@@ -28,7 +28,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/farmers", farmerRoutes);
 app.use("/api/groups", groupRoutes);
-app.use("/api/group-members", groupMemberRoutes);
+app.use("/api/groups", groupMemberRoutes);
 app.use("/api/lands", landRoutes);
 app.use("/api/crops", cropRoutes);
 app.use("/api/equipment", equipmentRoutes);

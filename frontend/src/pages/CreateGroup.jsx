@@ -13,7 +13,10 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Button
+  Button,
+  FormControl,
+  Select,
+  MenuItem
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +27,10 @@ import { getGroups, createGroup } from "../api/groups.api";
 export default function CreateGroups() {
   const [groups, setGroups] = useState([]);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("all");
+
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
     group_name: "",
@@ -56,6 +62,16 @@ export default function CreateGroups() {
     fetchGroups();
   };
 
+  /* ================= FILTER GROUPS ================= */
+  const currentFarmerId = Number(localStorage.getItem("farmer_id"));
+
+  const filteredGroups =
+    filter === "mine" && currentFarmerId
+      ? groups.filter((g) =>
+          g.members?.some((m) => m.farmer_id === currentFarmerId)
+        )
+      : groups;
+
   return (
     <>
       <Navbar />
@@ -64,6 +80,17 @@ export default function CreateGroups() {
         <Typography variant="h4" gutterBottom>
           Farmer Groups
         </Typography>
+
+        {/* FILTER DROPDOWN */}
+        <FormControl sx={{ mb: 2, minWidth: 220 }}>
+          <Select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <MenuItem value="all">All Groups</MenuItem>
+            <MenuItem value="mine">My Groups</MenuItem>
+          </Select>
+        </FormControl>
 
         <Table>
           <TableHead>
@@ -76,7 +103,7 @@ export default function CreateGroups() {
           </TableHead>
 
           <TableBody>
-            {groups.map((g) => (
+            {filteredGroups.map((g) => (
               <TableRow
                 key={g.id}
                 hover
@@ -95,6 +122,7 @@ export default function CreateGroups() {
         </Table>
       </Box>
 
+      {/* CREATE GROUP */}
       <Fab
         color="primary"
         sx={{ position: "fixed", top: 80, right: 40 }}

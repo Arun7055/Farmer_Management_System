@@ -8,7 +8,7 @@ import {
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import GroupDetails from "./pages/Groups";
+import Groups from "./pages/Groups";
 import CreateGroups from "./pages/CreateGroup";
 import Crops from "./pages/Crops";
 import Lands from "./pages/Lands";
@@ -58,14 +58,13 @@ function App() {
           path="/groups/:groupId"
           element={
             <SignedIn>
-              <GroupDetails />
+              <Groups />
             </SignedIn>
-        }
+          }
         />
 
-        {/* Create Group */}
         <Route
-          path="/groups/create"
+          path="/groups"
           element={
             <SignedIn>
               <CreateGroups />

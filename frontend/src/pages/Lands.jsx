@@ -132,9 +132,10 @@ const currentFarmerId =
     if (ownerFilter === "others" && isMine) return false;
     if (
       soilFilter &&
-      land.soil_type?.toLowerCase() !== soilFilter.toLowerCase()
-    )
+      !land.soil_type?.toLowerCase().includes(soilFilter.toLowerCase())
+    ) {
       return false;
+    }
     if (
       locationFilter &&
       !land.location.toLowerCase().includes(locationFilter.toLowerCase())

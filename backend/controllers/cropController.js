@@ -9,8 +9,8 @@ export const createCrop = async (req, res) => {
 
     try {
         const result = await sql`
-            INSERT INTO crops (farmer_id, land_id, crop_name, growth_stage, expected_yield)
-            VALUES (${farmer_id}, ${land_id}, ${crop_name}, ${growth_stage}, ${expected_yield})
+            INSERT INTO crops (land_id, farmer_id, crop_name, growth_stage, expected_yield, created_at)
+            VALUES (${land_id}, ${farmer_id}, ${crop_name}, ${growth_stage}, ${expected_yield}, DEFAULT)
             RETURNING *;
         `;
         res.json({ success: true, data: result[0] });

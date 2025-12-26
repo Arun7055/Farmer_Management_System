@@ -96,6 +96,7 @@ export default function Crops() {
 
     await createCrop({
       ...form,
+      farmer_id: currentFarmerId, // Include farmer_id in the payload
       land_id: Number(form.land_id),
       expected_yield: form.expected_yield
         ? Number(form.expected_yield)

@@ -7,68 +7,89 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Fab
+  Button
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import { useParams } from "react-router-dom";
 
 import Navbar from "../components/navbar";
-import { getGroupMembers, addMemberToGroup } from "../api/groupMembers.api";
+import {
+  getGroupMembers,
+  addMemberToGroup
+} from "../api/groupMembers.api";
 
-export default function GroupDetails() {
+export default function Groups() {
   const { groupId } = useParams();
-  const [members, setMembers] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [farmerId, setFarmerId] = useState("");
 
+  const [members, setMembers] = useState([]);
+
+  const currentFarmerId = Number(localStorage.getItem("farmer_id"));
+
+  /* ================= FETCH MEMBERS ================= */
   const fetchMembers = async () => {
-    const res = await getGroupMembers();
-    const filtered = res.data.filter(
-      (m) => m.group_id === Number(groupId)
-    );
-    setMembers(filtered);
+    try {
+      const res = await getGroupMembers(groupId);
+      setMembers(res.data.data);
+    } catch (err) {
+      console.error("Error fetching members", err);
+    }
   };
 
   useEffect(() => {
     fetchMembers();
   }, [groupId]);
 
-  const handleAdd = async () => {
-    if (!farmerId) {
-      alert("Farmer ID required");
+  /* ================= JOIN GROUP ================= */
+  const handleJoin = async () => {
+    if (!currentFarmerId) {
+      alert("Farmer not logged in");
       return;
     }
 
-    await addMemberToGroup({
-      farmer_id: Number(farmerId),
-      group_id: Number(groupId)
-    });
-
-    setOpen(false);
-    setFarmerId("");
-    fetchMembers();
+    try {
+      await addMemberToGroup(groupId, currentFarmerId);
+      fetchMembers();
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to join group");
+    }
   };
+
+  /* ================= CHECK IF ALREADY MEMBER ================= */
+  const alreadyJoined = members.some(
+    (m) => Number(m.farmer_id) === currentFarmerId
+  );
 
   return (
     <>
       <Navbar />
 
       <Box p={4}>
-        <Typography variant="h4" gutterBottom>
-          Group Members (Group ID: {groupId})
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h4">
+            Group Members (Group ID: {groupId})
+          </Typography>
+
+          <Button
+            variant="contained"
+            disabled={alreadyJoined}
+            onClick={handleJoin}
+          >
+            {alreadyJoined ? "Joined" : "Join Group"}
+          </Button>
+        </Box>
 
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Farmer ID</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>Email</TableCell>
               <TableCell>Joined At</TableCell>
             </TableRow>
           </TableHead>
@@ -78,43 +99,19 @@ export default function GroupDetails() {
               <TableRow key={m.id}>
                 <TableCell>{m.id}</TableCell>
                 <TableCell>{m.farmer_id}</TableCell>
+                <TableCell>{m.name}</TableCell>
+                <TableCell>{m.phone || "—"}</TableCell>
+                <TableCell>{m.address || "—"}</TableCell>
                 <TableCell>
-                  {new Date(m.joined_at).toLocaleString()}
+                  {m.joined_at
+                    ? new Date(m.joined_at).toLocaleString()
+                    : "—"}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </Box>
-
-      <Fab
-        color="primary"
-        sx={{ position: "fixed", top: 80, right: 40 }}
-        onClick={() => setOpen(true)}
-      >
-        <AddIcon />
-      </Fab>
-
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
-        <DialogTitle>Add Member</DialogTitle>
-
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Farmer ID"
-            type="number"
-            value={farmerId}
-            onChange={(e) => setFarmerId(e.target.value)}
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleAdd}>
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }
