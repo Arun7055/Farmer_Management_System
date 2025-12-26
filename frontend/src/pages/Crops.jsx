@@ -132,7 +132,7 @@ export default function Crops() {
             Crops
           </Typography>
           <IconButton
-            color="primary"
+            color="white"
             onClick={() => setOpen(true)}
             sx={{
               background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
