@@ -13,24 +13,36 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  MenuItem
+  MenuItem,
+  Divider
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 
 import Navbar from "../components/navbar";
 import StyledTable from "../components/StyledTable";
-import { getEquipment, createEquipment, toggleEquipmentAvailability } from "../api/equipment.api";
-import api from "../api/axios";
+import {
+  getEquipment,
+  createEquipment,
+  toggleEquipmentAvailability
+} from "../api/equipment.api";
 
 export default function Equipment() {
   const [equipment, setEquipment] = useState([]);
   const [open, setOpen] = useState(false);
 
+  const [requestedEquipment, setRequestedEquipment] = useState([]);
+  const [showRequested, setShowRequested] = useState(false);
+
   const currentFarmerId = Number(localStorage.getItem("farmer_id"));
 
-  // DEBUG: Log current farmer ID
-  console.log("[CURRENT FARMER]", currentFarmerId, "type:", typeof currentFarmerId);
+  /* ---------------- LOAD REQUESTS FROM LOCALSTORAGE ---------------- */
+  useEffect(() => {
+    const stored = localStorage.getItem("requested_equipment");
+    if (stored) {
+      setRequestedEquipment(JSON.parse(stored));
+    }
+  }, []);
 
   /* ---------------- FILTERS ---------------- */
   const [nameFilter, setNameFilter] = useState("");
@@ -53,16 +65,7 @@ export default function Equipment() {
 
   /* ---------------- FILTER LOGIC ---------------- */
   const filteredEquipment = equipment.filter((eq) => {
-    const eqFarmerId = Number(eq.farmer_id);
-    const isMine = eqFarmerId === currentFarmerId;
-
-    // DEBUG: Log filtering conditions
-    console.log(
-      `[FILTER CHECK] Equipment ${eq.id}`,
-      "| eq.farmer_id:", eqFarmerId,
-      "| currentFarmerId:", currentFarmerId,
-      "| isMine:", isMine
-    );
+    const isMine = Number(eq.farmer_id) === currentFarmerId;
 
     const nameMatch = nameFilter
       ? eq.name.toLowerCase().includes(nameFilter.toLowerCase())
@@ -103,13 +106,34 @@ export default function Equipment() {
 
   /* ---------------- TOGGLE AVAILABILITY ---------------- */
   const toggleAvailability = async (eq) => {
-    try {
-      const updatedEquipment = await toggleEquipmentAvailability(eq.id);
-      console.log("Updated Equipment:", updatedEquipment);
-      fetchEquipment();
-    } catch (err) {
-      console.error("Failed to toggle availability:", err);
-    }
+    await toggleEquipmentAvailability(eq.id);
+    fetchEquipment();
+  };
+
+  /* ---------------- REQUEST (FRONTEND ONLY) ---------------- */
+  const isRequested = (eqId) =>
+    requestedEquipment.some((r) => r.equipment.id === eqId);
+
+  const handleRequest = (eq) => {
+    if (isRequested(eq.id)) return;
+
+    const newRequest = {
+      equipment: eq,
+      requestedBy: currentFarmerId
+    };
+
+    const updated = [...requestedEquipment, newRequest];
+    setRequestedEquipment(updated);
+    localStorage.setItem("requested_equipment", JSON.stringify(updated));
+  };
+
+  const removeRequest = (eqId) => {
+    const updated = requestedEquipment.filter(
+      (r) => r.equipment.id !== eqId
+    );
+
+    setRequestedEquipment(updated);
+    localStorage.setItem("requested_equipment", JSON.stringify(updated));
   };
 
   return (
@@ -129,17 +153,12 @@ export default function Equipment() {
           >
             Equipment
           </Typography>
+
           <IconButton
-            color="white"
             onClick={() => setOpen(true)}
             sx={{
               background: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
-              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
-              transition: "all 0.3s",
-              "&:hover": {
-                transform: "translateY(-2px) scale(1.05)",
-                boxShadow: "0 6px 20px rgba(76, 175, 80, 0.4)",
-              }
+              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)"
             }}
           >
             <AddIcon />
@@ -147,87 +166,132 @@ export default function Equipment() {
         </Box>
 
         {/* FILTER BAR */}
-        <Box display="flex" gap={2} mt={2} mb={3}>
-          <TextField
-            label="Name"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
-          <TextField
-            label="Type"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-          />
-          <TextField
-            select
-            label="Owner"
-            value={ownerFilter}
-            onChange={(e) => setOwnerFilter(e.target.value)}
-          >
+        <Box display="flex" gap={2} mb={3}>
+          <TextField label="Name" value={nameFilter} onChange={(e) => setNameFilter(e.target.value)} />
+          <TextField label="Type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} />
+          <TextField select label="Owner" value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)}>
             <MenuItem value="all">All</MenuItem>
             <MenuItem value="mine">My Equipment</MenuItem>
             <MenuItem value="others">Others</MenuItem>
           </TextField>
         </Box>
 
-        {/* TABLE */}
-        <StyledTable sx={{ mt: 3 }}>
+        {/* MAIN TABLE */}
+        <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Farmer</TableCell>
+              <TableCell>Owner</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Availability</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {filteredEquipment.map((eq) => (
-              <TableRow key={eq.id}>
-                <TableCell>{eq.id}</TableCell>
-                <TableCell>{eq.farmer_id}</TableCell>
-                <TableCell>{eq.name}</TableCell>
-                <TableCell>{eq.type || "—"}</TableCell>
-                <TableCell>
-                  {eq.farmer_id === currentFarmerId ? (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleAvailability(eq);
-                      }}
-                      sx={{
-                        borderColor: eq.availability ? "#f44336" : "#4caf50",
-                        color: eq.availability ? "#f44336" : "#4caf50",
-                        transition: "all 0.3s",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                          boxShadow: eq.availability ? "0 4px 12px rgba(244, 67, 54, 0.3)" : "0 4px 12px rgba(76, 175, 80, 0.3)",
-                          borderColor: eq.availability ? "#f44336" : "#4caf50",
-                          backgroundColor: eq.availability ? "rgba(244, 67, 54, 0.1)" : "rgba(76, 175, 80, 0.1)",
-                        }
-                      }}
-                    >
-                      {eq.availability ? "Mark Unavailable" : "Mark Available"}
-                    </Button>
-                  ) : (
-                    eq.availability ? "Available" : "Unavailable"
-                  )}
-                </TableCell>
-                <TableCell>
-                  {eq.availability ? "Available" : "Unavailable"}
-                </TableCell>
-                <TableCell>
-                  {new Date(eq.created_at).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))}
+            {filteredEquipment.map((eq) => {
+              const isMine = eq.farmer_id === currentFarmerId;
+
+              return (
+                <TableRow key={eq.id}>
+                  <TableCell>{eq.id}</TableCell>
+                  <TableCell>{eq.farmer_id}</TableCell>
+                  <TableCell>{eq.name}</TableCell>
+                  <TableCell>{eq.type || "—"}</TableCell>
+                  <TableCell>{eq.availability ? "Available" : "Unavailable"}</TableCell>
+
+                  <TableCell>
+                    {isMine ? (
+                      <Button size="small" variant="outlined" onClick={() => toggleAvailability(eq)}>
+                        {eq.availability ? "Mark Unavailable" : "Mark Available"}
+                      </Button>
+                    ) : eq.availability ? (
+                      isRequested(eq.id) ? (
+                        <Button size="small" disabled>
+                          Requested
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => handleRequest(eq)}
+                        >
+                          Request
+                        </Button>
+                      )
+                    ) : (
+                      "Unavailable"
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </StyledTable>
+
+        {/* REQUESTED SECTION */}
+        <Divider sx={{ my: 4 }} />
+
+        <Button variant="outlined" onClick={() => setShowRequested((p) => !p)}>
+          {showRequested ? "Hide Requested Equipment" : "Show Requested Equipment"}
+        </Button>
+
+        {showRequested && (
+          <Box mt={3}>
+            <Typography variant="h6" mb={2}>
+              Requested Equipment
+            </Typography>
+
+            {requestedEquipment.length === 0 ? (
+              <Typography color="text.secondary">
+                No equipment requested yet.
+              </Typography>
+            ) : (
+              <StyledTable>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Owner</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Requested By</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {requestedEquipment.map((req) => {
+                    const { equipment: eq, requestedBy } = req;
+                    const isOwner = eq.farmer_id === currentFarmerId;
+
+                    return (
+                      <TableRow key={eq.id}>
+                        <TableCell>{eq.id}</TableCell>
+                        <TableCell>{eq.farmer_id}</TableCell>
+                        <TableCell>{eq.name}</TableCell>
+                        <TableCell>{eq.type || "—"}</TableCell>
+                        <TableCell>{requestedBy}</TableCell>
+                        <TableCell>
+                          {isOwner && (
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="outlined"
+                              onClick={() => removeRequest(eq.id)}
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </StyledTable>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* ADD DIALOG */}
