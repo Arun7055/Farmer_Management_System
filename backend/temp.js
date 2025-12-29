@@ -4,14 +4,8 @@ async function run() {
   try {
     await sql`
       TRUNCATE TABLE
-        crops,
-        farmer_groups,
-        farmer_group_members,
-        land,
-        farmers,
-        equipment, 
-        customers,
-        crop_sales
+        crops
+        
       RESTART IDENTITY CASCADE;
     `;
 
@@ -22,5 +16,12 @@ async function run() {
     process.exit(0);
   }
 }
+// farmer_groups,
+        // farmer_group_members,
+        // land,
+        // farmers,
+        // equipment, 
+        // customers,
+        // crop_sales
 
 run();

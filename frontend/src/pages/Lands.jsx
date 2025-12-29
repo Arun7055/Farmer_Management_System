@@ -87,13 +87,13 @@ const currentFarmerId =
 
   /* ================= CREATE LAND ================= */
   const handleCreate = async () => {
-    if (!form.farmer_id || !form.area || !form.location) {
-      alert("Farmer ID, Area and Location are mandatory");
+    if (!currentFarmerId || !form.area || !form.location) {
+      alert("Farmer ID, Area, and Location are mandatory");
       return;
     }
 
     const payload = {
-      farmer_id: Number(form.farmer_id),
+      farmer_id: currentFarmerId, // Use farmer_id from localStorage
       group_id: form.group_id ? Number(form.group_id) : null,
       area: Number(form.area),
       location: form.location,
@@ -104,7 +104,6 @@ const currentFarmerId =
       await createLand(payload);
       setOpen(false);
       setForm({
-        farmer_id: "",
         group_id: "",
         area: "",
         location: "",
@@ -200,7 +199,7 @@ const currentFarmerId =
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Farmer ID</TableCell>
-              <TableCell>Group ID</TableCell>
+              {/* <TableCell>Group ID</TableCell> */}
               <TableCell>Area</TableCell>
               <TableCell>Location</TableCell>
               <TableCell>Soil Type</TableCell>
@@ -213,7 +212,7 @@ const currentFarmerId =
               <TableRow key={land.id}>
                 <TableCell>{land.id}</TableCell>
                 <TableCell>{land.farmer_id}</TableCell>
-                <TableCell>{land.group_id ?? "—"}</TableCell>
+                {/* <TableCell>{land.group_id ?? "—"}</TableCell> */}
                 <TableCell>{land.area}</TableCell>
                 <TableCell>{land.location}</TableCell>
                 <TableCell>{land.soil_type ?? "—"}</TableCell>
@@ -251,18 +250,7 @@ const currentFarmerId =
         <DialogTitle>Add Land</DialogTitle>
 
         <DialogContent>
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Farmer ID *"
-            type="number"
-            value={form.farmer_id}
-            onChange={(e) =>
-              setForm({ ...form, farmer_id: e.target.value })
-            }
-          />
-
-          <TextField
+          {/* <TextField
             fullWidth
             margin="dense"
             label="Group ID (optional)"
@@ -271,7 +259,7 @@ const currentFarmerId =
             onChange={(e) =>
               setForm({ ...form, group_id: e.target.value })
             }
-          />
+          /> */}
 
           <TextField
             fullWidth
