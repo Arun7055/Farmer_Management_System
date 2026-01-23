@@ -42,6 +42,7 @@ export default function Navbar() {
           { label: "Lands", path: "/lands" },
           { label: "Equipment", path: "/equipment" },
           { label: "Crops", path: "/crops" },
+          { label: "AI Query", path: "/ai-query" },
         ].map((item) => (
           <Button
             key={item.label}

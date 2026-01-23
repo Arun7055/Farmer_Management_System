@@ -14,6 +14,7 @@ import Crops from "./pages/Crops";
 import Lands from "./pages/Lands";
 import Equipment from "./pages/Equipment";
 import Farmers from "./pages/Farmers";
+import AIQuery from "./pages/AIQuery";
 
 function App() {
   return (
@@ -96,6 +97,15 @@ function App() {
           element={
             <SignedIn>
               <Equipment />
+            </SignedIn>
+          }
+        />
+
+        <Route
+          path="/ai-query"
+          element={
+            <SignedIn>
+              <AIQuery />
             </SignedIn>
           }
         />

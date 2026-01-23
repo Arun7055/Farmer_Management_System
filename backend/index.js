@@ -12,6 +12,7 @@ import cropRoutes from "./routes/cropRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
 import customerRoutes from "./routes/customerRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 import { runMigrations } from "./db/migrations.js";
 
@@ -34,6 +35,7 @@ app.use("/api/crops", cropRoutes);
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/sales", saleRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Start server
 runMigrations().then(() => {
