@@ -13,6 +13,7 @@ import equipmentRoutes from "./routes/equipmentRoutes.js";
 import customerRoutes from "./routes/customerRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import executeRoutes from "./routes/executeRoutes.js";
 
 import { runMigrations } from "./db/migrations.js";
 
@@ -36,6 +37,7 @@ app.use("/api/equipment", equipmentRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/sales", saleRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/execute-sql", executeRoutes); 
 
 // Start server
 runMigrations().then(() => {
@@ -43,7 +45,7 @@ runMigrations().then(() => {
         console.log(`Server running on http://localhost:${PORT}`);
     });
 }).catch((err)=>{
-    console.log(error)
+    console.log(err);
 })
 
 
