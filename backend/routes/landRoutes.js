@@ -4,7 +4,8 @@ import {
     getLand,
     createLand,
     updateLand,
-    deleteLand
+    deleteLand,
+    getLandSummary
 } from "../controllers/landController.js";
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get("/:id", getLand);
 router.post("/", createLand);
 router.put("/:id", updateLand);
 router.delete("/:id", deleteLand);
+router.post("/land-summary", getLandSummary);
 
 export default router;

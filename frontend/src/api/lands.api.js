@@ -24,3 +24,8 @@ export const deleteLand = async (id) => {
   const res = await api.delete(`/lands/${id}`);
   return res.data;
 };
+
+export const getLandSummary = async (farmer_id) => {
+  const res = await api.post("/lands/land-summary", { farmer_id });
+  return res.data;
+};

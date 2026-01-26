@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   TextField,
   Button,
@@ -23,7 +24,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "../components/navbar";
 import StyledTable from "../components/StyledTable";
-import { getAllLands, createLand } from "../api/lands.api";
+import { getAllLands, createLand, getLandSummary } from "../api/lands.api";
 
 export default function Lands() {
   const [lands, setLands] = useState([]);
@@ -49,6 +50,26 @@ const currentFarmerId =
   const [ownerFilter, setOwnerFilter] = useState("all"); // all | mine | others
   const [soilFilter, setSoilFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+
+/* ================= AI SUMMARY ================= */
+const [summaryOpen, setSummaryOpen] = useState(false);
+const [summaryText, setSummaryText] = useState("");
+const [loadingSummary, setLoadingSummary] = useState(false);
+
+const handleSummary = async () => {
+  try {
+    setLoadingSummary(true);
+    const res = await getLandSummary(currentFarmerId);
+    setSummaryText(res.summary);
+    setSummaryOpen(true);
+  } catch (err) {
+    console.error("Summary error", err);
+    alert("Failed to fetch AI summary");
+  } finally {
+    setLoadingSummary(false);
+  }
+};
+
 
   /* ================= FORM STATE ================= */
   const [form, setForm] = useState({
@@ -191,7 +212,39 @@ const currentFarmerId =
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
           />
+
+          <Button
+            variant="contained"
+            sx={{
+              background: "linear-gradient(135deg, #673ab7 0%, #9575cd 100%)"
+            }}
+            onClick={handleSummary}
+          >
+            AI Summary
+          </Button>
+
         </Box>
+
+        <Dialog open={summaryOpen} onClose={() => setSummaryOpen(false)} fullWidth>
+          <DialogTitle>AI Farm Summary</DialogTitle>
+
+          <DialogContent>
+            {loadingSummary ? (
+              <Typography>Analyzing your lands...</Typography>
+            ) : (
+              <DialogContentText
+                sx={{ whiteSpace: "pre-line" }}
+              >
+                {summaryText}
+              </DialogContentText>
+            )}
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setSummaryOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
 
         {/* ---------- LAND TABLE ---------- */}
         <StyledTable>
