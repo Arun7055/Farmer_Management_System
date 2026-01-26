@@ -13,14 +13,15 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  MenuItem
+  MenuItem,
+  CircularProgress
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 
 import Navbar from "../components/navbar";
 import StyledTable from "../components/StyledTable";
-import { getAllCrops, createCrop } from "../api/crops.api";
+import { getAllCrops, createCrop, getCropSummary } from "../api/crops.api";
 
 export default function Crops() {
   const [crops, setCrops] = useState([]);
@@ -87,6 +88,26 @@ export default function Crops() {
 
     return cropMatch && stageMatch && ownerMatch && farmerMatch;
   });
+
+/* ---------------- AI SUMMARY ---------------- */
+const [summaryOpen, setSummaryOpen] = useState(false);
+const [summaryText, setSummaryText] = useState("");
+const [summaryLoading, setSummaryLoading] = useState(false);
+const handleCropSummary = async () => {
+  try {
+    setSummaryOpen(true);
+    setSummaryLoading(true);
+
+    const res = await getCropSummary(currentFarmerId);
+    setSummaryText(res.summary);
+
+  } catch (err) {
+    setSummaryText("Unable to generate crop summary.");
+  } finally {
+    setSummaryLoading(false);
+  }
+};
+
 
   /* ---------------- CREATE ---------------- */
   const handleCreate = async () => {
@@ -175,7 +196,41 @@ export default function Crops() {
             value={farmerFilter}
             onChange={(e) => setFarmerFilter(e.target.value)}
           />
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleCropSummary}
+          >
+            AI Crop Summary
+          </Button>
         </Box>
+
+        <Dialog
+          open={summaryOpen}
+          onClose={() => setSummaryOpen(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>AI Crop Advisory 🌱</DialogTitle>
+
+          <DialogContent dividers>
+            {summaryLoading ? (
+              <CircularProgress />
+            ) : (
+              <Typography
+                component="pre"
+                sx={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}
+              >
+                {summaryText}
+              </Typography>
+            )}
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setSummaryOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
 
         {/* TABLE */}
         <StyledTable sx={{ mt: 3 }}>
