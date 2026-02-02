@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
   TextField,
   Typography,
   Paper,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  Tooltip
 } from "@mui/material";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
+
 import Navbar from "../components/navbar";
 import { processAIQuery, executeSQL } from "../api/ai.api";
 
@@ -14,7 +20,7 @@ import { processAIQuery, executeSQL } from "../api/ai.api";
  * AIQuery Component
  * -----------------
  * Flow:
- * User enters English query
+ * User enters English query (text OR voice)
  * → sent to backend via processAIQuery
  * → backend returns SQL
  * → SQL executed via executeSQL
@@ -27,7 +33,47 @@ const AIQuery = () => {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [listening, setListening] = useState(false);
 
+  const recognitionRef = useRef(null);
+
+  /* 🎤 Voice Recognition */
+  const handleMicClick = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported in this browser");
+      return;
+    }
+
+    // Stop if already listening
+    if (listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onstart = () => setListening(true);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery((prev) => (prev ? prev + " " + transcript : transcript));
+    };
+
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  /* 🚀 Submit Query */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -51,7 +97,7 @@ const AIQuery = () => {
         throw new Error("SQL execution failed");
       }
 
-      /* 3️⃣ Update UI (ALLOW empty arrays) */
+      /* 3️⃣ Update UI */
       setMeta({
         sql: aiResponse.sqlQuery,
         count: Array.isArray(executionResponse.data)
@@ -78,7 +124,7 @@ const AIQuery = () => {
 
       <Box sx={{ p: 4 }}>
         <Typography variant="h5" gutterBottom>
-          Ask in English
+          Ask your querry
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -89,6 +135,21 @@ const AIQuery = () => {
             onChange={(e) => setQuery(e.target.value)}
             sx={{ mb: 2 }}
             disabled={loading}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title={listening ? "Stop listening" : "Speak"}>
+                    <IconButton onClick={handleMicClick} disabled={loading}>
+                      {listening ? (
+                        <MicOffIcon color="error" />
+                      ) : (
+                        <MicIcon />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              )
+            }}
           />
 
           <Button type="submit" variant="contained" disabled={loading}>
