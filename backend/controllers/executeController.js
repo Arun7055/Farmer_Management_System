@@ -15,10 +15,11 @@ export const executeSQL = async (req, res) => {
     console.log("=== EXECUTING AI SQL ===");
     console.log(sqlQuery);
 
-    // 2️⃣ Execute query
-    const result = await sql.unsafe(sqlQuery);
+    // 2️⃣ Execute query using neon serverless client
+    // The neon() function returns a query function that accepts raw SQL strings
+    const result = await sql(sqlQuery);
 
-    // postgres(sql``) returns ARRAY, not { rows }
+    // neon() returns an array of rows directly
     const rows = Array.isArray(result) ? result : [];
 
     console.log(`Rows returned: ${rows.length}`);
