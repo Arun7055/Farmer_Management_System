@@ -28,6 +28,7 @@ export const processAIQuery = async (req, res) => {
     const prompt = `
 Generate ONLY a PostgreSQL SELECT query.
 No markdown. No backticks. No explanations.
+For soil related queries, search for names having first letter capital (like Sandy, Clayey, Black, Red). Do not add the word 'soil' in the query.
 
 ${DB_SCHEMA}
 

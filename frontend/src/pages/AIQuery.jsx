@@ -16,76 +16,57 @@ import { processAIQuery, executeSQL } from "../api/ai.api";
  * Flow:
  * User enters English query
  * → sent to backend via processAIQuery
- * → backend generates SQL
- * → backend executes sql.unsafe()
- * → DB rows returned
- * → rows displayed here
+ * → backend returns SQL
+ * → SQL executed via executeSQL
+ * → DB rows displayed as JSON
  */
+
 const AIQuery = () => {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /**
-   * Handle form submit
-   * Calls AI backend and executes SQL query
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!query.trim()) {
-      setError("Please enter a query");
-      return;
-    }
-
     setLoading(true);
     setError(null);
-    setResults(null);
+    setResults([]);
+    setMeta(null);
 
     try {
-      // 🔥 SINGLE API CALL: AI generates SQL
-      const response = await processAIQuery(query);
-      console.log("AI Query Response:", response);
+      /* 1️⃣ Ask AI to generate SQL */
+      const aiResponse = await processAIQuery(query);
 
-      if (!response.success || !response.sqlQuery) {
-        setError("Failed to generate SQL from AI");
-        return;
+      if (!aiResponse?.success || !aiResponse?.sqlQuery) {
+        throw new Error("AI failed to generate SQL");
       }
 
-      // 🔥 Execute the SQL query
-      const executionResponse = await executeSQL(response.sqlQuery);
-      console.log("SQL Execution Response:", executionResponse);
+      /* 2️⃣ Execute generated SQL */
+      const executionResponse = await executeSQL(aiResponse.sqlQuery);
 
-      if (!executionResponse.success) {
-        setError("Failed to execute SQL query");
-        return;
+      if (!executionResponse?.success) {
+        throw new Error("SQL execution failed");
       }
 
-      // Normalize result: ensure an array of rows
-      const rows =
+      /* 3️⃣ Update UI (ALLOW empty arrays) */
+      setMeta({
+        sql: aiResponse.sqlQuery,
+        count: Array.isArray(executionResponse.data)
+          ? executionResponse.data.length
+          : 0
+      });
+
+      setResults(
         Array.isArray(executionResponse.data)
           ? executionResponse.data
-          : executionResponse.data?.rows || [];
-
-      // Log the results to check the data
-      console.log("Fetched Results:", rows);
-
-      if (rows.length === 0) {
-        setResults(null);
-        setError("No data found for the given query.");
-        return;
-      }
-
-      // If results cannot be displayed as a table, display as JSON
-      if (rows.length > 0 && typeof rows[0] !== "object") {
-        setResults([{ data: JSON.stringify(rows) }]);
-      } else {
-        setResults(rows);
-      }
+          : []
+      );
     } catch (err) {
-      console.error("AI Query Error:", err);
-      setError("Something went wrong while fetching data");
+      console.error(err);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -121,64 +102,49 @@ const AIQuery = () => {
           </Typography>
         )}
 
-        {results && results.length > 0 && (
+        {meta && (
           <Paper sx={{ mt: 4, p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Results
+            <Typography variant="subtitle2" color="text.secondary">
+              Executed SQL
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: "monospace",
+                background: "#f5f5f5",
+                p: 1,
+                borderRadius: 1,
+                mb: 2
+              }}
+            >
+              {meta.sql}
             </Typography>
 
-            <Box sx={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    {Object.keys(results[0]).map((key) => (
-                      <th
-                        key={key}
-                        style={{
-                          border: "1px solid #ccc",
-                          padding: "8px",
-                          textAlign: "left",
-                          background: "#f5f5f5",
-                          position: "sticky",
-                          top: 0,
-                          zIndex: 1
-                        }}
-                      >
-                        {key}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {results.map((row, idx) => (
-                    <tr key={idx}>
-                      {Object.values(row).map((val, i) => (
-                        <td
-                          key={i}
-                          style={{
-                            border: "1px solid #ccc",
-                            padding: "8px",
-                            verticalAlign: "top"
-                          }}
-                        >
-                          {val === null
-                            ? "NULL"
-                            : typeof val === "object"
-                            ? JSON.stringify(val, null, 2)
-                            : val.toString()}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Box>
+            <Typography variant="subtitle2">
+              Records found: {meta.count}
+            </Typography>
           </Paper>
         )}
 
-        {results && results.length === 0 && (
-          <Typography sx={{ mt: 4 }}>No records found.</Typography>
+        {results && (
+          <Paper sx={{ mt: 2, p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Result (JSON)
+            </Typography>
+
+            <pre
+              style={{
+                maxHeight: "400px",
+                overflow: "auto",
+                background: "#111",
+                color: "#0f0",
+                padding: "16px",
+                borderRadius: "8px",
+                fontSize: "13px"
+              }}
+            >
+              {JSON.stringify(results, null, 2)}
+            </pre>
+          </Paper>
         )}
       </Box>
     </>
