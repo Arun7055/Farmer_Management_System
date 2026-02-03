@@ -77,7 +77,7 @@ export default function Farmers() {
           />
 
           <TextField
-            label="Address"
+            label="Email Address"
             value={addressFilter}
             onChange={(e) => setAddressFilter(e.target.value)}
           />
@@ -91,7 +91,7 @@ export default function Farmers() {
               {/* <TableCell>Clerk User ID</TableCell> */}
               <TableCell>Name</TableCell>
               <TableCell>Phone</TableCell>
-              <TableCell>Address</TableCell>
+              <TableCell>Email Address</TableCell>
               <TableCell>Created At</TableCell>
             </TableRow>
           </TableHead>

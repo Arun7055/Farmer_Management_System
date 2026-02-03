@@ -8,24 +8,15 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
-  Tooltip
+  Tooltip,
+  Select,
+  MenuItem
 } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 
 import Navbar from "../components/navbar";
 import { processAIQuery, executeSQL } from "../api/ai.api";
-
-/**
- * AIQuery Component
- * -----------------
- * Flow:
- * User enters English query (text OR voice)
- * → sent to backend via processAIQuery
- * → backend returns SQL
- * → SQL executed via executeSQL
- * → DB rows displayed as JSON
- */
 
 const AIQuery = () => {
   const [query, setQuery] = useState("");
@@ -34,6 +25,9 @@ const AIQuery = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [listening, setListening] = useState(false);
+
+  /* 🌐 Voice Language */
+  const [language, setLanguage] = useState("en-IN");
 
   const recognitionRef = useRef(null);
 
@@ -55,7 +49,7 @@ const AIQuery = () => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = "en-IN";
+    recognition.lang = language; // 👈 dynamic language
     recognition.interimResults = false;
     recognition.continuous = false;
 
@@ -83,21 +77,18 @@ const AIQuery = () => {
     setMeta(null);
 
     try {
-      /* 1️⃣ Ask AI to generate SQL */
       const aiResponse = await processAIQuery(query);
 
       if (!aiResponse?.success || !aiResponse?.sqlQuery) {
         throw new Error("AI failed to generate SQL");
       }
 
-      /* 2️⃣ Execute generated SQL */
       const executionResponse = await executeSQL(aiResponse.sqlQuery);
 
       if (!executionResponse?.success) {
         throw new Error("SQL execution failed");
       }
 
-      /* 3️⃣ Update UI */
       setMeta({
         sql: aiResponse.sqlQuery,
         count: Array.isArray(executionResponse.data)
@@ -126,6 +117,20 @@ const AIQuery = () => {
         <Typography variant="h5" gutterBottom>
           Ask your querry
         </Typography>
+
+        {/* 🌐 Language Selector */}
+        <Box sx={{ mb: 2, width: 220 }}>
+          <Select
+            fullWidth
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            size="small"
+          >
+            <MenuItem value="en-IN">English</MenuItem>
+            <MenuItem value="hi-IN">Hindi</MenuItem>
+            <MenuItem value="kn-IN">Kannada</MenuItem>
+          </Select>
+        </Box>
 
         <form onSubmit={handleSubmit}>
           <TextField
@@ -189,7 +194,7 @@ const AIQuery = () => {
         {results && (
           <Paper sx={{ mt: 2, p: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Result (JSON)
+              Results
             </Typography>
 
             <pre

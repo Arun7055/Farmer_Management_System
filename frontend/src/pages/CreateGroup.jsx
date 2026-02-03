@@ -93,7 +93,7 @@ export default function CreateGroups() {
         </Typography>
 
         {/* FILTER DROPDOWN */}
-        <FormControl sx={{ mb: 3, minWidth: 220 }}>
+        {/* <FormControl sx={{ mb: 3, minWidth: 220 }}>
           <Select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -109,7 +109,7 @@ export default function CreateGroups() {
             <MenuItem value="all">All Groups</MenuItem>
             <MenuItem value="mine">My Groups</MenuItem>
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <StyledTable>
           <TableHead>
