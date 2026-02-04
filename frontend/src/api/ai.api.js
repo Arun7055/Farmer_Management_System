@@ -1,7 +1,8 @@
 // ai.api.js
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export const processAIQuery = async (query) => {
-  const res = await fetch("/api/ai/query", {
+  const res = await fetch("${API_BASE}/api/ai/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query })
@@ -10,7 +11,7 @@ export const processAIQuery = async (query) => {
 };
 
 export const executeSQL = async (sqlQuery) => {
-  const res = await fetch("/api/execute-sql", {
+  const res = await fetch("${API_BASE}/api/execute-sql", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
