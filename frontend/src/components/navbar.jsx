@@ -77,6 +77,10 @@ export default function Navbar() {
           </Button>
         ))}
 
+        <Box sx={{ ml: 2 }}>
+          <div id="google_translate_element"></div>
+        </Box>
+
         <Button
           color="inherit"
           onClick={() => signOut()}
