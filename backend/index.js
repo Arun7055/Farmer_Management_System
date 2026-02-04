@@ -48,6 +48,10 @@ runMigrations().then(() => {
     console.log(err);
 })
 
+app.get("/health", (req, res) => {
+    res.json({ status: "ok" });
+  });  
+
 
 // user logins in
 // user gets his data
