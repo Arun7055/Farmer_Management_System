@@ -57,5 +57,3 @@ The system also supports voice input and multilingual accessibility to improve u
 
 ---
 
-## 📂 Project Structure
-
