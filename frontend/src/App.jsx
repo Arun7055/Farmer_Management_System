@@ -1,9 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
   SignedIn,
   SignedOut,
-  RedirectToSignIn,
-  RedirectToUserProfile
 } from "@clerk/clerk-react";
 
 import Login from "./pages/Login";
@@ -29,7 +27,8 @@ function App() {
                 <Login />
               </SignedOut>
               <SignedIn>
-                <Home />
+                {/* Physically change the URL to /home if they are already logged in */}
+                <Navigate to="/home" replace />
               </SignedIn>
             </>
           }
@@ -110,14 +109,10 @@ function App() {
           }
         />
 
-        {/* Catch-all */}
+        {/* Catch-all: If they hit a weird URL like /factor-one, safely bounce them to the root */}
         <Route
           path="*"
-          element={
-            <SignedOut>
-              <RedirectToSignIn routing="path" path="/" />
-            </SignedOut>
-          }
+          element={<Navigate to="/" replace />}
         />
       </Routes>
     </BrowserRouter>
