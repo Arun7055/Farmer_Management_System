@@ -29,10 +29,11 @@ export default function Login() {
         </Typography>
       </Box>
 
-      {/* Updated Props Here */}
+      {/* Removed routing="path" and path="/" 
+        Clerk will now show the password step via internal React state, 
+        preventing the Vercel 404 crash.
+      */}
       <SignIn 
-        routing="path" 
-        path="/" 
         fallbackRedirectUrl="/home" 
         forceRedirectUrl="/home" 
       />
