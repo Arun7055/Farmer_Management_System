@@ -14,18 +14,8 @@ export default function Login() {
         background: "radial-gradient(ellipse at top, rgba(76, 175, 80, 0.1) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(255, 193, 7, 0.1) 0%, transparent 50%)",
       }}
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        gap={2}
-        mb={4}
-      >
-        <AgricultureIcon
-          sx={{
-            fontSize: 60,
-            color: "#4caf50",
-          }}
-        />
+      <Box display="flex" alignItems="center" gap={2} mb={4}>
+        <AgricultureIcon sx={{ fontSize: 60, color: "#4caf50" }} />
         <Typography
           variant="h3"
           sx={{
@@ -39,7 +29,13 @@ export default function Login() {
         </Typography>
       </Box>
 
-      <SignIn routing="path" path="/" redirectUrl="/home" />
+      {/* Updated Props Here */}
+      <SignIn 
+        routing="path" 
+        path="/" 
+        fallbackRedirectUrl="/home" 
+        forceRedirectUrl="/home" 
+      />
     </Box>
   );
 }
