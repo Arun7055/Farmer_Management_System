@@ -177,7 +177,7 @@ export default function Equipment() {
         </Box>
 
         {/* MAIN TABLE */}
-        <StyledTable>
+        {/* <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -230,7 +230,7 @@ export default function Equipment() {
           </TableBody>
         </StyledTable>
 
-        {/* REQUESTED SECTION */}
+        REQUESTED SECTION
         <Divider sx={{ my: 4 }} />
 
         <Button variant="outlined" onClick={() => setShowRequested((p) => !p)}>
@@ -291,7 +291,7 @@ export default function Equipment() {
               </StyledTable>
             )}
           </Box>
-        )}
+        )} */}
       </Box>
 
       {/* ADD DIALOG */}
