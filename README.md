@@ -7,6 +7,9 @@ The system also supports voice input and multilingual accessibility to improve u
 ## 🚀 Live Demo
 * **KisanAI** [[Click here](https://kisanai-tau.vercel.app/)]
 
+## System Architecture
+<img width="1535" height="1024" alt="image" src="https://github.com/user-attachments/assets/9bf2e8c4-b4f2-4e21-a979-7eebaf4d7c34" />
+
 ---
 
 ## 🚀 Features
