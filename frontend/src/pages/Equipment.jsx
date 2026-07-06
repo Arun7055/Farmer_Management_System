@@ -177,7 +177,7 @@ export default function Equipment() {
         </Box>
 
         {/* MAIN TABLE */}
-        {/* <StyledTable>
+        <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -291,7 +291,7 @@ export default function Equipment() {
               </StyledTable>
             )}
           </Box>
-        )} */}
+        )}
       </Box>
 
       {/* ADD DIALOG */}
