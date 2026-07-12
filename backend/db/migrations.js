@@ -98,6 +98,23 @@ export const runMigrations = async () => {
             );
         `;
 
+        // 6️⃣ equipment_requests
+        await sql`
+            CREATE TABLE IF NOT EXISTS equipment_requests (
+                id SERIAL PRIMARY KEY,
+
+                equipment_id INT REFERENCES equipment(id) ON DELETE CASCADE,
+
+                owner_id INT REFERENCES farmers(id),
+
+                requester_id INT REFERENCES farmers(id),
+
+                status VARCHAR(20) DEFAULT 'pending',
+
+                requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+
         console.log("✔ Database migrations completed");
 
     } catch (err) {

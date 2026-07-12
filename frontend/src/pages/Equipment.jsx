@@ -24,7 +24,10 @@ import StyledTable from "../components/StyledTable";
 import {
   getEquipment,
   createEquipment,
-  toggleEquipmentAvailability
+  toggleEquipmentAvailability,
+  createEquipmentRequest,
+  getEquipmentRequests,
+  deleteEquipmentRequest
 } from "../api/equipment.api";
 
 export default function Equipment() {
@@ -35,14 +38,6 @@ export default function Equipment() {
   const [showRequested, setShowRequested] = useState(false);
 
   const currentFarmerId = Number(localStorage.getItem("farmer_id"));
-
-  /* ---------------- LOAD REQUESTS FROM LOCALSTORAGE ---------------- */
-  useEffect(() => {
-    const stored = localStorage.getItem("requested_equipment");
-    if (stored) {
-      setRequestedEquipment(JSON.parse(stored));
-    }
-  }, []);
 
   /* ---------------- FILTERS ---------------- */
   const [nameFilter, setNameFilter] = useState("");
@@ -59,8 +54,14 @@ export default function Equipment() {
     setEquipment(res.data);
   };
 
+  const fetchRequests = async () => {
+    const res = await getEquipmentRequests(currentFarmerId);
+    setRequestedEquipment(res.data.data);
+  };
+
   useEffect(() => {
     fetchEquipment();
+    fetchRequests();
   }, []);
 
   /* ---------------- FILTER LOGIC ---------------- */
@@ -110,31 +111,33 @@ export default function Equipment() {
     fetchEquipment();
   };
 
-  /* ---------------- REQUEST (FRONTEND ONLY) ---------------- */
+  /* ---------------- REQUEST---------------- */
   const isRequested = (eqId) =>
-    requestedEquipment.some((r) => r.equipment.id === eqId);
-
-  const handleRequest = (eq) => {
-    if (isRequested(eq.id)) return;
-
-    const newRequest = {
-      equipment: eq,
-      requestedBy: currentFarmerId
-    };
-
-    const updated = [...requestedEquipment, newRequest];
-    setRequestedEquipment(updated);
-    localStorage.setItem("requested_equipment", JSON.stringify(updated));
-  };
-
-  const removeRequest = (eqId) => {
-    const updated = requestedEquipment.filter(
-      (r) => r.equipment.id !== eqId
+    requestedEquipment.some(
+      (r) =>
+        r.equipment_id === eqId &&
+        r.requester_id === currentFarmerId &&
+        r.status === "pending"
     );
 
-    setRequestedEquipment(updated);
-    localStorage.setItem("requested_equipment", JSON.stringify(updated));
-  };
+    const handleRequest = async (eq) => {
+      try {
+        await createEquipmentRequest({
+          equipment_id: eq.id,
+          requester_id: currentFarmerId
+        });
+    
+        fetchRequests();
+    
+      } catch (err) {
+        alert(err.response?.data?.error || "Unable to request equipment");
+      }
+    };
+
+    const removeRequest = async (requestId) => {
+      await deleteEquipmentRequest(requestId);
+      fetchRequests();
+    };
 
   return (
     <>
@@ -257,33 +260,34 @@ export default function Equipment() {
                     <TableCell>Type</TableCell>
                     <TableCell>Requested By</TableCell>
                     <TableCell>Action</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
 
                 <TableBody>
                   {requestedEquipment.map((req) => {
-                    const { equipment: eq, requestedBy } = req;
-                    const isOwner = eq.farmer_id === currentFarmerId;
+                    const isOwner = req.owner_id === currentFarmerId;
 
                     return (
-                      <TableRow key={eq.id}>
-                        <TableCell>{eq.id}</TableCell>
-                        <TableCell>{eq.farmer_id}</TableCell>
-                        <TableCell>{eq.name}</TableCell>
-                        <TableCell>{eq.type || "—"}</TableCell>
-                        <TableCell>{requestedBy}</TableCell>
+                      <TableRow key={req.id}>
+                        <TableCell>{req.equipment_id}</TableCell>
+                        <TableCell>{req.owner_id}</TableCell>
+                        <TableCell>{req.name}</TableCell>
+                        <TableCell>{req.type || "—"}</TableCell>
+                        <TableCell>{req.requester_name}</TableCell>
                         <TableCell>
                           {isOwner && (
                             <Button
                               size="small"
                               color="error"
                               variant="outlined"
-                              onClick={() => removeRequest(eq.id)}
+                              onClick={() => removeRequest(req.id)}
                             >
                               Remove
                             </Button>
                           )}
                         </TableCell>
+                        <TableCell>{req.status}</TableCell>
                       </TableRow>
                     );
                   })}
